@@ -1,76 +1,106 @@
 <!DOCTYPE html>
 <html>
+
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>FF STATE - REAL SEARCH</title>
-<style>
-body{background:#000;color:#fff;font-family:Arial;text-align:center;padding:15px}
-.box{background:#111;border:2px solid gold;border-radius:15px;padding:20px;max-width:400px;margin:20px auto}
-input,select{padding:14px;border-radius:10px;border:none;background:#222;color:#fff;width:75%;margin:5px}
-button{padding:14px;background:gold;color:#000;font-weight:900;border:none;border-radius:10px;width:85%;cursor:pointer;margin-top:10px}
-.card{background:#111;border:2px solid #0f0;border-radius:15px;padding:15px;margin:20px auto;max-width:420px;text-align:left}
-.row{display:flex;justify-content:space-between;padding:8px 0;border-bottom:1px solid #222}
-</style>
-</head>
-<body>
-<h2 style="color:gold">👑 FF STATE - REAL SEARCH</h2>
-<p style="color:#666">Recherche n'importe quel joueur - 0 FAKE</p>
-
-<div class="box">
-<input id="uid" placeholder="UID ex: 1005326603">
-<select id="region">
-<option value="sg">SG / Madagascar</option>
-<option value="me">ME</option>
-<option value="br">BR</option>
-<option value="id">ID</option>
-<option value="ind">IND</option>
-</select>
-<br>
-<button onclick="searchReal()">🔍 CHERCHER VRAI JOUEUR</button>
-</div>
-
-<div id="result"></div>
-
-<script>
-async function searchReal(){
-  const uid = document.getElementById('uid').value.trim();
-  const region = document.getElementById('region').value;
-  const div = document.getElementById('result');
-  
-  if(!uid){ alert("Mets un UID boss"); return; }
-  
-  div.innerHTML = "<p>⏳ Recherche réelle de "+uid+"...</p>";
-  
-  try{
-    const url = "https://wzapi.vercel.app/player?uid="+uid+"&region="+region;
-    const r = await fetch(url);
-    const data = await r.json();
-    
-    if(data.error){
-      div.innerHTML = "<div class='card' style='border-color:red'><p style='color:red'>❌ UID introuvable</p><p>Essaie région ME ou BR, ou vérifie que ton profil est PUBLIC dans Free Fire</p></div>";
-      return;
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>FF STATE REAL</title>
+  <style>
+    body {
+      background: #000;
+      color: #fff;
+      font-family: Arial;
+      text-align: center;
+      padding: 15px
     }
-    
-    const name = data.nickname || data.name || "Joueur";
-    const level = data.level || data.AccountLevel || "?";
-    const likes = data.likes || data.AccountLikes || "?";
-    
-    div.innerHTML = `
-      <div class="card">
-        <h3 style="color:#0f0">✅ JOUEUR TROUVÉ - RÉEL</h3>
-        <div class="row"><span>UID</span><b>${uid}</b></div>
-        <div class="row"><span>Pseudo RÉEL</span><b>${name}</b></div>
-        <div class="row"><span>Niveau RÉEL</span><b>${level}</b></div>
-        <div class="row"><span>Likes RÉEL</span><b>${likes}</b></div>
-        <div class="row"><span>Région</span><b>${region.toUpperCase()}</b></div>
-        <p style="color:#0f0;font-size:11px">✅ LIVE Garena - 0 FAKE</p>
-      </div>
-    `;
-  }catch(e){
-    div.innerHTML = "<div class='card' style='border-color:red'><p>Erreur: "+e.message+"</p></div>";
-  }
-}
-</script>
+
+    .box {
+      background: #111;
+      border: 2px solid gold;
+      border-radius: 15px;
+      padding: 20px;
+      max-width: 400px;
+      margin: auto
+    }
+
+    input,
+    select {
+      padding: 14px;
+      width: 75%;
+      border-radius: 10px;
+      border: none;
+      background: #222;
+      color: #fff;
+      margin: 5px
+    }
+
+    button {
+      padding: 14px;
+      width: 85%;
+      background: gold;
+      color: #000;
+      font-weight: 900;
+      border: none;
+      border-radius: 10px;
+      cursor: pointer;
+      margin-top: 10px
+    }
+
+    .card {
+      background: #111;
+      border: 2px solid #0f0;
+      border-radius: 15px;
+      padding: 15px;
+      max-width: 420px;
+      margin: 20px auto;
+      text-align: left
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #222
+    }
+  </style>
+</head>
+
+<body>
+  <h2 style="color:gold">👑 FF STATE - REAL SEARCH</h2>
+  <div class="box">
+    <input id="uid" placeholder="UID ex: 1005326603" value="">
+    <select id="region">
+      <option value="sg">SG / Madagascar</option>
+      <option value="me">ME</option>
+      <option value="br">BR</option>
+      <option value="ind">IND</option>
+      <option value="id">ID</option>
+    </select>
+    <br>
+    <button onclick="searchReal()">🔍 CHERCHER VRAI JOUEUR</button>
+  </div>
+  <div id="result"></div>
+
+  <script>
+    async function searchReal() {
+      const uid = document.getElementById('uid').value.trim();
+      const region = document.getElementById('region').value;
+      const div = document.getElementById('result');
+      if (!uid) { alert("Mets un UID boss"); return; }
+      div.innerHTML = "<p>⏳ Recherche réelle de " + uid + " en " + region + "...</p>";
+      try {
+        const response = await fetch("/api?uid=" + uid + "&region=" + region);
+        const data = await response.json();
+        if (data.error) {
+          div.innerHTML = "<div class='card' style='border-color:red'><p style='color:red'>❌ " + data.error + "</p><p style='font-size:12px'>1. Vérifie 10 chiffres<br>2. Profil PUBLIC dans FF<br>3. Essaie ME ou BR</p></div>";
+          return;
+        }
+        div.innerHTML = "<div class='card'><h3 style='color:#0f0'>✅ JOUEUR TROUVÉ - RÉEL</h3><div class='row'><span>UID</span><b>" + uid + "</b></div><div class='row'><span>Pseudo RÉEL</span><b>" + data.nickname + "</b></div><div class='row'><span>Niveau RÉEL</span><b>" + data.level + "</b></div><div class='row'><span>Likes RÉEL</span><b>" + data.likes + "</b></div><div class='row'><span>Région</span><b>" + data.region + "</b></div><p style='color:#0f0;font-size:11px'>✅ LIVE Garena - 0 FAKE</p></div>";
+      } catch (e) {
+        div.innerHTML = "<div class='card' style='border-color:red'><p>Erreur: " + e.message + "</p></div>";
+      }
+    }
+  </script>
 </body>
+
 </html>
